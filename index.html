@@ -4,107 +4,231 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#080b18">
 <title>OFFICIALBURAY DATA</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#080b18;color:white;font-family:Arial,sans-serif}
-header{padding:22px 18px;background:#111a32;text-align:center;border-bottom:1px solid #26385e}
-header h1{margin:0;color:#ffc928;font-size:25px}
-header p{color:#bdc8dd;margin:8px 0 0}
-.hero{text-align:center;padding:35px 20px 25px}
-.hero h2{font-size:29px;margin:5px 0 12px}
-.hero p{color:#bac5d9;line-height:1.6}
-.tag{display:inline-block;background:#173c2c;color:#7dffb0;padding:7px 13px;border-radius:20px;font-size:12px}
-.container{padding:15px;max-width:650px;margin:auto}
-.card{background:#121b31;border:1px solid #293957;border-radius:16px;padding:18px;margin-bottom:15px}
-.card h3{margin:0 0 10px;color:#ffc928}
-.price{font-size:25px;font-weight:bold;margin:12px 0;color:#fff}
-button{width:100%;border:0;border-radius:10px;background:#ffc928;color:#111;font-weight:bold;padding:14px;font-size:16px;cursor:pointer}
-button:hover{background:#ffe078}
-input,select{width:100%;padding:14px;border-radius:9px;border:1px solid #40506d;background:#080f20;color:white;margin:8px 0 14px;font-size:15px}
-label{font-size:14px;color:#dce4f3}
-.note{font-size:13px;color:#aebbd0;line-height:1.6}
-footer{text-align:center;padding:25px;color:#8592a9;font-size:13px}
+body{margin:0;background:#090b12;color:white;font-family:Arial,sans-serif}
+header{background:#151a28;padding:22px 16px;text-align:center;border-bottom:2px solid #f5c45b}
+.logo{font-size:25px;font-weight:900;color:#f5c45b}
+header p{color:#c4c8d2;margin-bottom:0}
+main{max-width:950px;margin:auto;padding:20px 15px}
+h2{color:#f5c45b}
+.intro{text-align:center;padding:15px 0 25px}
+.intro p{color:#c4c8d2}
+#bundles{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:13px}
+.bundle{background:#171e2d;border:1px solid #30394b;border-radius:14px;padding:20px 12px;text-align:center}
+.bundle h3{font-size:25px;margin:5px}
+.price{font-size:20px;color:#f5c45b;font-weight:bold;margin:12px}
+button{background:#f5c45b;color:#17120a;border:0;padding:12px 20px;border-radius:9px;font-weight:bold;font-size:15px;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+#orderBox{display:none;background:#171e2d;border:1px solid #39445a;border-radius:15px;padding:20px;margin-top:25px}
+input{width:100%;padding:14px;margin:8px 0 15px;border-radius:8px;border:1px solid #46516a;background:#0d1220;color:white;font-size:16px}
+label{font-weight:bold;font-size:14px}
+.small{font-size:13px;color:#aeb6c7}
+#message{padding:12px;border-radius:8px;margin-top:15px;display:none}
+footer{text-align:center;color:#8790a3;padding:30px 10px;font-size:13px}
 </style>
 </head>
 <body>
+
 <header>
-<h1>OFFICIALBURAY DATA</h1>
-<p>Your trusted data order platform</p>
+ <div class="logo">OFFICIALBURAY DATA</div>
+ <p>Fast and easy MTN data orders</p>
 </header>
 
-<section class="hero">
-<span class="tag">MTN GHANA DATA ORDERS</span>
-<h2>Stay Connected. Spend Smart.</h2>
-<p>Welcome to OFFICIALBURAY DATA.<br>
-Choose a data package and submit your order.</p>
-</section>
+<main>
+ <section class="intro">
+  <h2>Buy Your MTN Data</h2>
+  <p>Choose your bundle, enter the numbers and place your order.</p>
+  <p class="small">No customer registration required.</p>
+ </section>
 
-<main class="container">
-<h2>Available Packages</h2>
+ <h2>Available Bundles</h2>
+ <div id="bundles">
+  <p>Loading data bundles...</p>
+ </div>
 
-<div class="card">
-<h3>MTN Data Package</h3>
-<p>Select your preferred package when placing an order.</p>
-<div class="price">Choose your bundle</div>
-<p class="note">Prices and package availability will be confirmed before payment.</p>
-</div>
+ <section id="orderBox">
+  <h2>Complete Your Order</h2>
+  <p id="selectedBundle"></p>
 
-<div class="card">
-<h3>Place Your Order</h3>
-<form id="orderForm">
-<label>Your name</label>
-<input id="customer" placeholder="Enter your name" required>
+  <form id="orderForm">
+   <label>Your name</label>
+   <input id="customerName" type="text" placeholder="Enter your name" required>
 
-<label>MTN phone number</label>
-<input id="phone" type="tel" placeholder="e.g. 0241234567" required>
+   <label>Recipient MTN number</label>
+   <input id="recipientPhone" type="tel" inputmode="numeric"
+    placeholder="Example: 0241234567" required>
 
-<label>Choose data package</label>
-<select id="bundle" required>
-<option value="">Select a package</option>
-<option>1GB</option>
-<option>2GB</option>
-<option>3GB</option>
-<option>5GB</option>
-<option>10GB</option>
-<option>15GB</option>
-<option>20GB</option>
-</select>
+   <label>MTN MoMo payment number</label>
+   <input id="momoPhone" type="tel" inputmode="numeric"
+    placeholder="Number you will use to pay" required>
 
-<button type="submit">Submit Order on WhatsApp</button>
-</form>
-<p class="note">Your order will be sent to our WhatsApp for confirmation. Do not send your MoMo PIN or password.</p>
-</div>
+   <button id="submitButton" type="submit">Place Order</button>
+   <button type="button" id="cancelButton"
+    style="background:#39445a;color:white;margin-left:5px">Cancel</button>
+  </form>
 
-<div class="card">
-<h3>Why Choose Us?</h3>
-<p>✓ Simple ordering</p>
-<p>✓ Mobile-friendly website</p>
-<p>✓ Order confirmation before payment</p>
-<p>✓ Customer support</p>
-</div>
+  <div id="message"></div>
+ </section>
 </main>
 
 <footer>
-© 2026 OFFICIALBURAY DATA<br>
-Independent data order service. Not an official MTN website.
+ OFFICIALBURAY DATA · Customer support coming soon
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-document.getElementById("orderForm").addEventListener("submit",function(e){
-e.preventDefault();
-const name=document.getElementById("customer").value.trim();
-const phone=document.getElementById("phone").value.trim();
-const bundle=document.getElementById("bundle").value;
-const message="Hello OFFICIALBURAY DATA. I want to place a data order.%0AName: "+encodeURIComponent(name)+"%0APhone: "+encodeURIComponent(phone)+"%0ABundle: "+encodeURIComponent(bundle);
-const businessNumber=""; 
-if(!businessNumber){
-alert("The website design is ready. The WhatsApp business number must be added before orders can be sent.");
-return;
+const SUPABASE_URL = "https://hxlfvhlltuwqhalzrvbr.supabase.co";
+
+const SUPABASE_KEY = "sb_publishable_jrZ6aTftJhYsmKBKjpTjnQ_KI_ZzzlZ";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let selectedBundle = null;
+
+const bundlesBox = document.getElementById("bundles");
+const orderBox = document.getElementById("orderBox");
+const orderForm = document.getElementById("orderForm");
+const messageBox = document.getElementById("message");
+const submitButton = document.getElementById("submitButton");
+
+function showMessage(message, success) {
+  messageBox.style.display = "block";
+  messageBox.style.background = success ? "#123c2a" : "#49202a";
+  messageBox.style.color = "white";
+  messageBox.textContent = message;
 }
-window.open("https://wa.me/"+businessNumber+"?text="+message,"_blank");
+
+function chooseBundle(bundle) {
+  selectedBundle = bundle;
+
+  document.getElementById("selectedBundle").textContent =
+    bundle.bundle_name + " — GHS " +
+    Number(bundle.price_ghs).toFixed(2);
+
+  orderBox.style.display = "block";
+  messageBox.style.display = "none";
+
+  orderBox.scrollIntoView({behavior:"smooth"});
+}
+
+async function loadBundles() {
+  bundlesBox.innerHTML = "<p>Loading bundles...</p>";
+
+  const {data, error} = await db
+    .from("data_bundles")
+    .select("id,bundle_name,data_gb,price_ghs,is_active")
+    .eq("is_active", true)
+    .order("data_gb", {ascending:true});
+
+  if (error) {
+    bundlesBox.textContent =
+      "Unable to load bundles. Please try again later.";
+    console.error(error);
+    return;
+  }
+
+  const available = data.filter(
+    b => b.price_ghs !== null && Number(b.price_ghs) > 0
+  );
+
+  if (!available.length) {
+    bundlesBox.textContent = "No bundles are available yet.";
+    return;
+  }
+
+  bundlesBox.innerHTML = "";
+
+  available.forEach(bundle => {
+    const card = document.createElement("div");
+    card.className = "bundle";
+
+    const name = document.createElement("h3");
+    name.textContent = bundle.bundle_name;
+
+    const price = document.createElement("div");
+    price.className = "price";
+    price.textContent = "GHS " + Number(bundle.price_ghs).toFixed(2);
+
+    const buy = document.createElement("button");
+    buy.textContent = "BUY NOW";
+    buy.addEventListener("click", () => chooseBundle(bundle));
+
+    card.append(name, price, buy);
+    bundlesBox.appendChild(card);
+  });
+}
+
+document.getElementById("cancelButton").onclick = () => {
+  orderBox.style.display = "none";
+  selectedBundle = null;
+};
+
+orderForm.addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  if (!selectedBundle) {
+    showMessage("Please select a data bundle first.", false);
+    return;
+  }
+
+  const customerName =
+    document.getElementById("customerName").value.trim();
+
+  const recipientPhone =
+    document.getElementById("recipientPhone").value.trim();
+
+  const momoPhone =
+    document.getElementById("momoPhone").value.trim();
+
+  const phonePattern = /^0\d{9}$/;
+
+  if (!phonePattern.test(recipientPhone) ||
+      !phonePattern.test(momoPhone)) {
+    showMessage(
+      "Enter both phone numbers in the 10-digit format, for example 0241234567.",
+      false
+    );
+    return;
+  }
+
+  submitButton.disabled = true;
+  submitButton.textContent = "Submitting...";
+
+  const {data, error} = await db.rpc("create_data_order", {
+    p_customer_name: customerName,
+    p_recipient_phone: recipientPhone,
+    p_momo_phone: momoPhone,
+    p_bundle_id: selectedBundle.id
+  });
+
+  submitButton.disabled = false;
+  submitButton.textContent = "Place Order";
+
+  if (error) {
+    console.error(error);
+    showMessage(
+      "Your order could not be submitted. Please try again.",
+      false
+    );
+    return;
+  }
+
+  showMessage(
+    "Your order has been recorded! Order reference: " +
+    String(data) +
+    ". Payment is still pending. No payment has been collected yet.",
+    true
+  );
+
+  orderForm.reset();
 });
+
+loadBundles();
 </script>
 </body>
 </html>
