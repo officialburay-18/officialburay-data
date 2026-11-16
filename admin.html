@@ -5,7 +5,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OFFICIALBURAY DATA | Admin</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#090b12;color:white;font-family:Arial,sans-serif}
@@ -14,7 +16,8 @@ header h2{color:#f5c45b;margin:0}
 main{max-width:1000px;margin:auto;padding:18px}
 .panel{background:#171e2d;padding:18px;border-radius:13px;margin:15px 0}
 input{width:100%;padding:13px;margin:8px 0 15px;border-radius:8px;background:#0b1020;color:white;border:1px solid #46516a}
-button{padding:11px 16px;border:0;border-radius:8px;background:#f5c45b;font-weight:bold;cursor:pointer;margin:4px}
+button{padding:12px 17px;border:0;border-radius:8px;background:#f5c45b;font-weight:bold;cursor:pointer;margin:4px}
+button:disabled{opacity:.5;cursor:not-allowed}
 button.secondary{background:#354157;color:white}
 h3{color:#f5c45b}
 .stat{display:inline-block;background:#222b3c;padding:15px;margin:5px;border-radius:9px;min-width:130px}
@@ -25,11 +28,12 @@ th{color:#f5c45b}
 .tablewrap{overflow-x:auto}
 .small{color:#aab4c6;font-size:13px}
 #dashboard{display:none}
-#message{padding:12px;margin:12px 0;border-radius:8px;display:none}
+#message{padding:12px;margin:12px 0;border-radius:8px;display:none;overflow-wrap:anywhere}
 .priceRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #39445a;padding:10px 0}
 .priceRow input{max-width:130px;margin:0}
 </style>
 </head>
+
 <body>
 <header>
 <h2>OFFICIALBURAY DATA</h2>
@@ -42,29 +46,33 @@ th{color:#f5c45b}
 <section id="login" class="panel">
 <h3>Admin Login</h3>
 <p class="small">Sign in with your registered administrator account.</p>
-<form id="loginForm" onsubmit="return false;">
+
+<form id="loginForm">
 <label>Email address</label>
-<input id="email" type="email" required placeholder="Your admin email">
+<input id="email" type="email" required autocomplete="username" placeholder="Your admin email">
+
 <label>Password</label>
-<input id="password" type="password" required placeholder="Your password">
-<button type="submit">Sign In</button>
+<input id="password" type="password" required autocomplete="current-password" placeholder="Your password">
+
+<button id="loginButton" type="submit">Sign In</button>
 </form>
 </section>
 
 <section id="dashboard">
+
 <div class="panel">
 <h3>Platform Overview</h3>
 <div class="stat">Total orders<strong id="totalOrders">0</strong></div>
 <div class="stat">Pending orders<strong id="pendingOrders">0</strong></div>
 <div class="stat">Paid orders<strong id="paidOrders">0</strong></div>
 <br>
-<button onclick="refreshAll()">Refresh Dashboard</button>
-<button class="secondary" onclick="logout()">Sign Out</button>
+<button id="refreshButton">Refresh Dashboard</button>
+<button id="logoutButton" class="secondary">Sign Out</button>
 </div>
 
 <div class="panel">
 <h3>Customer Orders</h3>
-<p class="small">Payment status must be verified by the payment provider before data delivery.</p>
+<p class="small">Payment must be verified by the payment provider before data delivery.</p>
 <div class="tablewrap">
 <table>
 <thead>
@@ -72,7 +80,7 @@ th{color:#f5c45b}
 <th>Customer</th>
 <th>Recipient</th>
 <th>MoMo payer</th>
-<th>Bundle</th>
+<th>Bundle ID</th>
 <th>Amount</th>
 <th>Order status</th>
 <th>Payment status</th>
@@ -90,193 +98,317 @@ th{color:#f5c45b}
 <p class="small">Change a price and save it. Unpriced bundles remain unavailable in the shop.</p>
 <div id="prices">Loading bundles...</div>
 </div>
+
 </section>
 </main>
 
 <script>
-const URL = "https://hxlfvhlltuwqhalzrvbr.supabase.co";
-const KEY = "sb_publishable_jrZ6aTftJhYsmKBKjpTjnQ_KI_ZzzlZ";
-const db = window.supabase.createClient(URL, KEY);
+const SUPABASE_URL = "https://hxlfvhlltuwqhalzrvbr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_jrZ6aTftJhYsmKBKjpTjnQ_KI_ZzzlZ";
 
 const loginBox = document.getElementById("login");
 const dashboard = document.getElementById("dashboard");
 const message = document.getElementById("message");
+const loginButton = document.getElementById("loginButton");
 
-function say(text, success=false){
- message.style.display="block";
- message.style.background=success?"#123c2a":"#49202a";
- message.textContent=text;
+let db = null;
+
+function say(text, success=false) {
+  message.style.display = "block";
+  message.style.background = success ? "#123c2a" : "#49202a";
+  message.textContent = text;
 }
 
-async function checkAdmin(){
- const {data:{user}} = await db.auth.getUser();
-
- if(!user){
-  loginBox.style.display="block";
-  dashboard.style.display="none";
-  return;
- }
-
- const {data,error} = await db
-  .from("admin_users")
-  .select("user_id")
-  .eq("user_id",user.id)
-  .maybeSingle();
-
- if(error || !data){
-  await db.auth.signOut();
-  say("This account does not have confirmed administrator access.");
-  return;
- }
-
- loginBox.style.display="none";
- dashboard.style.display="block";
- await refreshAll();
+function hideMessage() {
+  message.style.display = "none";
 }
 
-document.getElementById("loginForm").addEventListener("submit",async e=>{
- e.preventDefault();
+function showLogin() {
+  loginBox.style.display = "block";
+  dashboard.style.display = "none";
+}
 
- const email=document.getElementById("email").value.trim();
- const password=document.getElementById("password").value;
+function showDashboard() {
+  loginBox.style.display = "none";
+  dashboard.style.display = "block";
+}
 
- const {error}=await db.auth.signInWithPassword({email,password});
+function initializeSupabase() {
+  if (!window.supabase || !window.supabase.createClient) {
+    say("The Supabase library did not load. Check your internet connection, refresh the page and try again.");
+    return false;
+  }
 
- if(error){
-  say("Login failed: "+error.message);
-  return;
- }
+  try {
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return true;
+  } catch (error) {
+    say("Could not connect to Supabase: " + error.message);
+    return false;
+  }
+}
 
- await checkAdmin();
+async function checkAdmin() {
+  try {
+    const {data: userData, error: userError} = await db.auth.getUser();
+
+    if (userError) {
+      showLogin();
+      say("Could not check your login: " + userError.message);
+      return false;
+    }
+
+    const user = userData.user;
+
+    if (!user) {
+      showLogin();
+      return false;
+    }
+
+    say("Checking administrator access...");
+
+    const {data, error} = await db
+      .from("admin_users")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error) {
+      showLogin();
+      say("Could not verify administrator access: " + error.message);
+      return false;
+    }
+
+    if (!data) {
+      await db.auth.signOut();
+      showLogin();
+      say("Your login worked, but this account is not registered as an administrator. The admin_users record must be checked.");
+      return false;
+    }
+
+    hideMessage();
+    showDashboard();
+    await refreshAll();
+    return true;
+
+  } catch (error) {
+    showLogin();
+    say("An unexpected error occurred: " + error.message);
+    return false;
+  }
+}
+
+document.getElementById("loginForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+  hideMessage();
+
+  if (!db) {
+    say("Supabase is not ready. Refresh the page and try again.");
+    return;
+  }
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  if (!email || !password) {
+    say("Please enter your email and password.");
+    return;
+  }
+
+  loginButton.disabled = true;
+  loginButton.textContent = "Signing in...";
+  say("Connecting and checking your login...");
+
+  try {
+    const {data, error} = await db.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      say("Login failed: " + error.message);
+      return;
+    }
+
+    if (!data.user) {
+      say("Login was not completed. Please try again.");
+      return;
+    }
+
+    await checkAdmin();
+
+  } catch (error) {
+    say("Sign-in error: " + error.message);
+  } finally {
+    loginButton.disabled = false;
+    loginButton.textContent = "Sign In";
+  }
 });
 
-async function logout(){
- await db.auth.signOut();
- dashboard.style.display="none";
- loginBox.style.display="block";
- say("You have signed out.",true);
+async function logout() {
+  try {
+    const {error} = await db.auth.signOut();
+
+    if (error) {
+      say("Sign-out error: " + error.message);
+      return;
+    }
+
+    showLogin();
+    document.getElementById("password").value = "";
+    say("You have signed out successfully.", true);
+
+  } catch (error) {
+    say("Sign-out error: " + error.message);
+  }
 }
 
-async function refreshAll(){
- await loadOrders();
- await loadPrices();
+async function refreshAll() {
+  await loadOrders();
+  await loadPrices();
 }
 
-async function loadOrders(){
- const body=document.getElementById("ordersTable");
- body.innerHTML="<tr><td colspan='7'>Loading...</td></tr>";
+async function loadOrders() {
+  const body = document.getElementById("ordersTable");
+  body.innerHTML = "<tr><td colspan='7'>Loading orders...</td></tr>";
 
- const {data:orders,error}=await db
-  .from("data_orders")
-  .select("*")
-  .order("created_at",{ascending:false});
+  try {
+    const {data: orders, error} = await db
+      .from("data_orders")
+      .select("*")
+      .order("created_at", {ascending:false});
 
- if(error){
-  body.innerHTML="<tr><td colspan='7'>Unable to load orders. Check database permissions.</td></tr>";
-  console.error(error);
-  return;
- }
+    if (error) {
+      body.innerHTML = "<tr><td colspan='7'>Unable to load orders.</td></tr>";
+      say("Order loading error: " + error.message);
+      return;
+    }
 
- document.getElementById("totalOrders").textContent=orders.length;
- document.getElementById("pendingOrders").textContent=
-  orders.filter(o=>o.payment_status==="pending").length;
- document.getElementById("paidOrders").textContent=
-  orders.filter(o=>o.payment_status==="paid").length;
+    document.getElementById("totalOrders").textContent = orders.length;
+    document.getElementById("pendingOrders").textContent =
+      orders.filter(o => o.payment_status === "pending").length;
+    document.getElementById("paidOrders").textContent =
+      orders.filter(o => o.payment_status === "paid").length;
 
- if(!orders.length){
-  body.innerHTML="<tr><td colspan='7'>No orders yet.</td></tr>";
-  return;
- }
+    if (!orders.length) {
+      body.innerHTML = "<tr><td colspan='7'>No orders yet.</td></tr>";
+      return;
+    }
 
- body.innerHTML="";
+    body.innerHTML = "";
 
- orders.forEach(o=>{
-  const tr=document.createElement("tr");
-  const values=[
-   o.customer_name,
-   o.recipient_phone,
-   o.momo_phone,
-   o.bundle_id,
-   "GHS "+Number(o.amount_ghs).toFixed(2),
-   o.order_status,
-   o.payment_status
-  ];
+    orders.forEach(o => {
+      const tr = document.createElement("tr");
 
-  values.forEach(v=>{
-   const td=document.createElement("td");
-   td.textContent=v??"-";
-   tr.appendChild(td);
-  });
+      const values = [
+        o.customer_name,
+        o.recipient_phone,
+        o.momo_phone,
+        o.bundle_id,
+        "GHS " + Number(o.amount_ghs).toFixed(2),
+        o.order_status,
+        o.payment_status
+      ];
 
-  body.appendChild(tr);
- });
+      values.forEach(value => {
+        const td = document.createElement("td");
+        td.textContent = value ?? "-";
+        tr.appendChild(td);
+      });
+
+      body.appendChild(tr);
+    });
+
+  } catch (error) {
+    body.innerHTML = "<tr><td colspan='7'>Unexpected error loading orders.</td></tr>";
+    say("Order error: " + error.message);
+  }
 }
 
-async function loadPrices(){
- const box=document.getElementById("prices");
- box.textContent="Loading bundles...";
+async function loadPrices() {
+  const box = document.getElementById("prices");
+  box.textContent = "Loading bundles...";
 
- const {data,error}=await db
-  .from("data_bundles")
-  .select("id,bundle_name,price_ghs,is_active")
-  .order("data_gb");
+  try {
+    const {data, error} = await db
+      .from("data_bundles")
+      .select("id,bundle_name,price_ghs,is_active")
+      .order("data_gb");
 
- if(error){
-  box.textContent="Unable to load bundle prices.";
-  console.error(error);
-  return;
- }
+    if (error) {
+      box.textContent = "Unable to load bundle prices.";
+      say("Bundle loading error: " + error.message);
+      return;
+    }
 
- box.innerHTML="";
+    box.innerHTML = "";
 
- data.forEach(bundle=>{
-  const row=document.createElement("div");
-  row.className="priceRow";
+    data.forEach(bundle => {
+      const row = document.createElement("div");
+      row.className = "priceRow";
 
-  const name=document.createElement("strong");
-  name.textContent=bundle.bundle_name;
+      const name = document.createElement("strong");
+      name.textContent = bundle.bundle_name;
 
-  const input=document.createElement("input");
-  input.type="number";
-  input.min="0.01";
-  input.step="0.01";
-  input.placeholder="Price in GHS";
-  input.value=bundle.price_ghs??"";
+      const input = document.createElement("input");
+      input.type = "number";
+      input.min = "0.01";
+      input.step = "0.01";
+      input.placeholder = "Price in GHS";
+      input.value = bundle.price_ghs ?? "";
 
-  const save=document.createElement("button");
-  save.textContent="Save Price";
+      const save = document.createElement("button");
+      save.textContent = "Save Price";
 
-  save.onclick=async()=>{
-   const price=Number(input.value);
+      save.onclick = async () => {
+        const price = Number(input.value);
 
-   if(!Number.isFinite(price)||price<=0){
-    say("Enter a valid price greater than zero.");
-    return;
-   }
+        if (!Number.isFinite(price) || price <= 0) {
+          say("Enter a valid price greater than zero.");
+          return;
+        }
 
-   save.disabled=true;
-   const {error}=await db
-    .from("data_bundles")
-    .update({price_ghs:price})
-    .eq("id",bundle.id);
+        save.disabled = true;
+        save.textContent = "Saving...";
 
-   save.disabled=false;
+        try {
+          const {error:updateError} = await db
+            .from("data_bundles")
+            .update({price_ghs:price})
+            .eq("id",bundle.id);
 
-   if(error){
-    say("Price update failed. Check admin database permissions.");
-    console.error(error);
-    return;
-   }
+          if (updateError) {
+            say("Price update failed: " + updateError.message);
+            return;
+          }
 
-   say(bundle.bundle_name+" price updated successfully.",true);
-  };
+          say(bundle.bundle_name + " price updated successfully.", true);
 
-  row.append(name,input,save);
-  box.appendChild(row);
- });
+        } catch (error) {
+          say("Price update error: " + error.message);
+        } finally {
+          save.disabled = false;
+          save.textContent = "Save Price";
+        }
+      };
+
+      row.append(name,input,save);
+      box.appendChild(row);
+    });
+
+  } catch (error) {
+    box.textContent = "Unexpected error loading prices.";
+    say("Price error: " + error.message);
+  }
 }
 
-checkAdmin();
+document.getElementById("refreshButton").addEventListener("click", refreshAll);
+document.getElementById("logoutButton").addEventListener("click", logout);
+
+if (initializeSupabase()) {
+  checkAdmin();
+}
 </script>
+
 </body>
 </html>
