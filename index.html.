@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080b18">
+<title>OFFICIALBURAY DATA</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080b18;color:white;font-family:Arial,sans-serif}
+header{padding:22px 18px;background:#111a32;text-align:center;border-bottom:1px solid #26385e}
+header h1{margin:0;color:#ffc928;font-size:25px}
+header p{color:#bdc8dd;margin:8px 0 0}
+.hero{text-align:center;padding:35px 20px 25px}
+.hero h2{font-size:29px;margin:5px 0 12px}
+.hero p{color:#bac5d9;line-height:1.6}
+.tag{display:inline-block;background:#173c2c;color:#7dffb0;padding:7px 13px;border-radius:20px;font-size:12px}
+.container{padding:15px;max-width:650px;margin:auto}
+.card{background:#121b31;border:1px solid #293957;border-radius:16px;padding:18px;margin-bottom:15px}
+.card h3{margin:0 0 10px;color:#ffc928}
+.price{font-size:25px;font-weight:bold;margin:12px 0;color:#fff}
+button{width:100%;border:0;border-radius:10px;background:#ffc928;color:#111;font-weight:bold;padding:14px;font-size:16px;cursor:pointer}
+button:hover{background:#ffe078}
+input,select{width:100%;padding:14px;border-radius:9px;border:1px solid #40506d;background:#080f20;color:white;margin:8px 0 14px;font-size:15px}
+label{font-size:14px;color:#dce4f3}
+.note{font-size:13px;color:#aebbd0;line-height:1.6}
+footer{text-align:center;padding:25px;color:#8592a9;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+<h1>OFFICIALBURAY DATA</h1>
+<p>Your trusted data order platform</p>
+</header>
+
+<section class="hero">
+<span class="tag">MTN GHANA DATA ORDERS</span>
+<h2>Stay Connected. Spend Smart.</h2>
+<p>Welcome to OFFICIALBURAY DATA.<br>
+Choose a data package and submit your order.</p>
+</section>
+
+<main class="container">
+<h2>Available Packages</h2>
+
+<div class="card">
+<h3>MTN Data Package</h3>
+<p>Select your preferred package when placing an order.</p>
+<div class="price">Choose your bundle</div>
+<p class="note">Prices and package availability will be confirmed before payment.</p>
+</div>
+
+<div class="card">
+<h3>Place Your Order</h3>
+<form id="orderForm">
+<label>Your name</label>
+<input id="customer" placeholder="Enter your name" required>
+
+<label>MTN phone number</label>
+<input id="phone" type="tel" placeholder="e.g. 0241234567" required>
+
+<label>Choose data package</label>
+<select id="bundle" required>
+<option value="">Select a package</option>
+<option>1GB</option>
+<option>2GB</option>
+<option>3GB</option>
+<option>5GB</option>
+<option>10GB</option>
+<option>15GB</option>
+<option>20GB</option>
+</select>
+
+<button type="submit">Submit Order on WhatsApp</button>
+</form>
+<p class="note">Your order will be sent to our WhatsApp for confirmation. Do not send your MoMo PIN or password.</p>
+</div>
+
+<div class="card">
+<h3>Why Choose Us?</h3>
+<p>✓ Simple ordering</p>
+<p>✓ Mobile-friendly website</p>
+<p>✓ Order confirmation before payment</p>
+<p>✓ Customer support</p>
+</div>
+</main>
+
+<footer>
+© 2026 OFFICIALBURAY DATA<br>
+Independent data order service. Not an official MTN website.
+</footer>
+
+<script>
+document.getElementById("orderForm").addEventListener("submit",function(e){
+e.preventDefault();
+const name=document.getElementById("customer").value.trim();
+const phone=document.getElementById("phone").value.trim();
+const bundle=document.getElementById("bundle").value;
+const message="Hello OFFICIALBURAY DATA. I want to place a data order.%0AName: "+encodeURIComponent(name)+"%0APhone: "+encodeURIComponent(phone)+"%0ABundle: "+encodeURIComponent(bundle);
+const businessNumber=""; 
+if(!businessNumber){
+alert("The website design is ready. The WhatsApp business number must be added before orders can be sent.");
+return;
+}
+window.open("https://wa.me/"+businessNumber+"?text="+message,"_blank");
+});
+</script>
+</body>
+</html>
