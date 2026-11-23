@@ -106,7 +106,10 @@ document.getElementById("amount").textContent =
 document.getElementById("orderReference").textContent =
   order || "Reference unavailable";
 
-function goBack(){
+function goBack(){function showTestMessage(){
+  document.getElementById("testMessage").textContent =
+    "Demo only: no payment was made. Your order remains pending.";
+  }
   window.location.href = "./index.html";
 }
 </script>
