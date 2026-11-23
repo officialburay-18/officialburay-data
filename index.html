@@ -294,18 +294,15 @@ document.getElementById("orderForm").addEventListener("submit",async function(e)
    return;
   }
 
-  showNotice(
-   "TEST ORDER CREATED SUCCESSFULLY! "+
-   "Order reference: "+data+
-   " | Bundle: "+selectedBundle.bundle_name+
-   " | Amount: "+formatPrice(selectedBundle.price_ghs)+
-   " | Recipient: "+recipient+
-   " | Payment: PENDING — NO MONEY COLLECTED. "+
-   "No data has been delivered.",
-   true
-  );
+  showNotice("Order created successfully! Opening test payment page...", true);
 
-  document.getElementById("orderForm").reset();
+const paymentURL = new URL("payment.html", window.location.href);
+
+paymentURL.searchParams.set("bundle", selectedBundle.bundle_name);
+paymentURL.searchParams.set("amount", selectedBundle.price_ghs);
+paymentURL.searchParams.set("order", data);
+
+window.location.href = paymentURL.toString();
 
  }catch(error){
   showNotice("Unable to create order: "+error.message);
