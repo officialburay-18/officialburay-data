@@ -71,9 +71,15 @@ This page is for testing the checkout interface only.
 </p>
 </div>
 
-<div class="status">
+<div class="status" id="paymentStatus">
 PAYMENT PENDING — TEST MODE
 </div>
+
+<button type="button" onclick="showTestMessage()">
+Test Payment (Demo Only)
+</button>
+
+<p class="muted" id="testMessage"></p>
 
 <p class="muted">
 No money has been collected. This page cannot confirm a real payment or deliver data.
