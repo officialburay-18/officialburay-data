@@ -1,11 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OFFICIALBURAY DATA | Admin</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -80,7 +78,7 @@ th{color:#f5c45b}
 <th>Customer</th>
 <th>Recipient</th>
 <th>MoMo payer</th>
-<th>Bundle ID</th>
+<th>Bundle</th>
 <th>Amount</th>
 <th>Order status</th>
 <th>Payment status</th>
@@ -104,7 +102,7 @@ th{color:#f5c45b}
 
 <script>
 const SUPABASE_URL = "https://hxlfvhlltuwqhalzrvbr.supabase.co";
-const SUPABASE_KEY = "sb_publishable_jrZ6aTftJhYsmKBKjpTjnQ_KI_ZzzlZ";
+const SUPABASE_KEY = "sb_publishable_jrZ6aTftJhYsmKBKjpTjnQ_KI_Zzzl";
 
 const loginBox = document.getElementById("login");
 const dashboard = document.getElementById("dashboard");
@@ -182,7 +180,7 @@ async function checkAdmin() {
     if (!data) {
       await db.auth.signOut();
       showLogin();
-      say("Your login worked, but this account is not registered as an administrator. The admin_users record must be checked.");
+      say("Your login worked, but this account is not registered as an administrator.");
       return false;
     }
 
@@ -273,6 +271,7 @@ async function loadOrders() {
   body.innerHTML = "<tr><td colspan='7'>Loading orders...</td></tr>";
 
   try {
+    // Load customer orders
     const {data: orders, error} = await db
       .from("data_orders")
       .select("*")
@@ -284,6 +283,21 @@ async function loadOrders() {
       return;
     }
 
+    // Load bundle names and create ID-to-name lookup
+    const {data: bundles, error: bundleError} = await db
+      .from("data_bundles")
+      .select("id,bundle_name");
+
+    if (bundleError) {
+      say("Could not load bundle names: " + bundleError.message);
+    }
+
+    const bundleMap = {};
+    (bundles || []).forEach(bundle => {
+      bundleMap[bundle.id] = bundle.bundle_name;
+    });
+
+    // Update order statistics
     document.getElementById("totalOrders").textContent = orders.length;
     document.getElementById("pendingOrders").textContent =
       orders.filter(o => o.payment_status === "pending").length;
@@ -300,11 +314,14 @@ async function loadOrders() {
     orders.forEach(o => {
       const tr = document.createElement("tr");
 
+      // Replace the UUID with the actual bundle name
+      const bundleName = bundleMap[o.bundle_id] || "Unknown bundle";
+
       const values = [
         o.customer_name,
         o.recipient_phone,
         o.momo_phone,
-        o.bundle_id,
+        bundleName,
         "GHS " + Number(o.amount_ghs).toFixed(2),
         o.order_status,
         o.payment_status
