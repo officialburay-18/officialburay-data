@@ -115,7 +115,41 @@ No money has been collected. This test page cannot confirm a real payment or del
 </main>
 
 <script>
+<script>
 const params = new URLSearchParams(window.location.search);
+
+document.getElementById("bundle").textContent =
+  params.get("bundle") || "Test bundle";
+
+document.getElementById("recipient").textContent =
+  "Protected";
+
+document.getElementById("amount").textContent =
+  "GHS " + (Number(params.get("amount")) || 0).toFixed(2);
+
+const orderReference = params.get("order");
+
+const orderBox = document.createElement("div");
+orderBox.className = "info";
+
+const orderLabel = document.createElement("strong");
+orderLabel.textContent = "Order reference";
+
+const orderValue = document.createElement("p");
+orderValue.textContent = orderReference || "Reference unavailable";
+orderValue.style.wordBreak = "break-all";
+
+orderBox.append(orderLabel, orderValue);
+
+document.querySelector(".panel").insertBefore(
+  orderBox,
+  document.querySelector(".panel").children[1]
+);
+
+function goBack(){
+  window.location.href = "./index.html";
+}
+</script>
 
 document.getElementById("bundle").textContent =
   params.get("bundle") || "Test bundle";
