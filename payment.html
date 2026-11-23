@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OFFICIALBURAY DATA | Payment</title>
+<meta name="theme-color" content="#08080d">
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#08080d;
+  color:white;
+  font-family:Arial,sans-serif;
+}
+header{
+  text-align:center;
+  padding:22px 16px;
+  background:#14121c;
+  border-bottom:2px solid #f5c45b;
+}
+header h1{margin:0;color:#f5c45b}
+main{max-width:550px;margin:auto;padding:18px}
+.panel{
+  background:#17141f;
+  border:1px solid #302b3b;
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:16px;
+}
+h2{color:#f5c45b}
+.info{
+  background:#211d2c;
+  border-radius:12px;
+  padding:14px;
+  margin:12px 0;
+}
+.row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 0;
+  border-bottom:1px solid #393344;
+}
+.row:last-child{border-bottom:0}
+.muted{color:#aaa;font-size:13px;line-height:1.6}
+.status{
+  background:#493b19;
+  color:#f5c45b;
+  padding:12px;
+  border-radius:10px;
+  text-align:center;
+  font-weight:bold;
+}
+button{
+  width:100%;
+  border:0;
+  border-radius:10px;
+  padding:14px;
+  margin-top:12px;
+  font-weight:bold;
+  background:#f5c45b;
+  color:#111;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>OFFICIALBURAY DATA</h1>
+<p>Test Payment Screen</p>
+</header>
+
+<main>
+<section class="panel">
+<h2>Order Summary</h2>
+
+<div class="info">
+<div class="row">
+<span>Bundle</span>
+<strong id="bundle">Test bundle</strong>
+</div>
+
+<div class="row">
+<span>Recipient number</span>
+<strong id="recipient">Not provided</strong>
+</div>
+
+<div class="row">
+<span>Amount</span>
+<strong id="amount">GHS 0.00</strong>
+</div>
+</div>
+
+<h2>Payment Method</h2>
+<div class="info">
+<strong>MTN Mobile Money</strong>
+<p class="muted">
+Payment integration is not connected yet.
+This page is for interface testing only.
+</p>
+</div>
+
+<div class="status" id="paymentStatus">
+PAYMENT PENDING — TEST MODE
+</div>
+
+<p class="muted">
+No money has been collected. This test page cannot confirm a real payment or deliver data.
+</p>
+
+<button onclick="goBack()">Return to Shop</button>
+</section>
+</main>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+document.getElementById("bundle").textContent =
+  params.get("bundle") || "Test bundle";
+
+document.getElementById("recipient").textContent =
+  params.get("recipient") || "Not provided";
+
+document.getElementById("amount").textContent =
+  "GHS " + (Number(params.get("amount")) || 0).toFixed(2);
+
+function goBack(){
+  window.location.href = "./index.html";
+}
+</script>
+
+</body>
+</html>
+
+
+
